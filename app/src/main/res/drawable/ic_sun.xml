@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- Sol central -->
+    <path
+        android:fillColor="@color/accent_orange"
+        android:pathData="M40,40 L80,40 L80,80 L40,80 Z" />
+        
+    <!-- Rayos del sol -->
+    <path
+        android:fillColor="@color/accent_orange"
+        android:pathData="M58,10 L62,30 L58,30 Z" />
+    <path
+        android:fillColor="@color/accent_orange"
+        android:pathData="M58,90 L62,110 L58,110 Z" />
+    <path
+        android:fillColor="@color/accent_orange"
+        android:pathData="M10,58 L30,62 L30,58 Z" />
+    <path
+        android:fillColor="@color/accent_orange"
+        android:pathData="M90,58 L110,62 L110,58 Z" />
+        
+</vector>

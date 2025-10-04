@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_locations">
+
+    <fragment
+        android:id="@+id/navigation_locations"
+        android:name="com.example.l4_20223209.ui.locations.LocationsFragment"
+        android:label="@string/title_locations"
+        tools:layout="@layout/fragment_locations" />
+
+    <fragment
+        android:id="@+id/navigation_forecast"
+        android:name="com.example.l4_20223209.ui.forecast.ForecastFragment"
+        android:label="@string/title_forecast"
+        tools:layout="@layout/fragment_forecast">
+        <argument
+            android:name="locationId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="locationName"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_future"
+        android:name="com.example.l4_20223209.ui.future.FutureFragment"
+        android:label="@string/title_future"
+        tools:layout="@layout/fragment_future" />
+
+    <action android:id="@+id/action_locations_to_forecast"
+        app:destination="@id/navigation_forecast" />
+
+</navigation>
