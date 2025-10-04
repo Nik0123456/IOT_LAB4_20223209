@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/placeholder_fragment">
+
+    <!-- Placeholder fragment - será reemplazado por los fragments específicos -->
+    <fragment
+        android:id="@+id/placeholder_fragment"
+        android:name="com.example.l4_20223209.PlaceholderFragment"
+        android:label="TELE-WEATHER" />
+
+</navigation>
