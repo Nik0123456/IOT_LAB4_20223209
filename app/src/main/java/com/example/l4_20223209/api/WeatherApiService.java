@@ -10,7 +10,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface WeatherApiService {
-    String BASE_URL = "http://api.weatherapi.com/v1/";
+    String BASE_URL = "https://api.weatherapi.com/v1/";
     String API_KEY = "5586a0acd5a345e0b4361158250210";
 
     // Método GET 1: Búsqueda de locaciones

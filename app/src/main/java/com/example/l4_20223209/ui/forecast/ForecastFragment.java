@@ -125,7 +125,7 @@ public class ForecastFragment extends Fragment {
 
         // Llamada a la API para obtener pronóstico
         Call<WeatherResponse> call = apiService.getForecast(
-            "db77e6a0b7184c3e9b2170648241215", locationId, days);
+            "5586a0acd5a345e0b4361158250210", locationId, days);
 
         call.enqueue(new Callback<WeatherResponse>() {
             @Override

@@ -84,13 +84,6 @@ public class LocationsFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
             }
         });
-
-        // FAB de ubicación actual
-        binding.fabMyLocation.setOnClickListener(v -> {
-            Toast.makeText(getContext(), 
-                "Funcionalidad de ubicación actual en desarrollo",
-                Toast.LENGTH_SHORT).show();
-        });
     }
 
     private void searchLocations(String query) {
@@ -100,7 +93,7 @@ public class LocationsFragment extends Fragment {
 
         // Llamada a la API
         Call<List<Location>> call = apiService.searchLocations(
-            "db77e6a0b7184c3e9b2170648241215", query);
+            "5586a0acd5a345e0b4361158250210", query);
 
         call.enqueue(new Callback<List<Location>>() {
             @Override
