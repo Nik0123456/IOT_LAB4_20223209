@@ -1,13 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/placeholder_fragment">
+    app:startDestination="@id/locationsFragment">
 
-    <!-- Placeholder fragment - será reemplazado por los fragments específicos -->
     <fragment
-        android:id="@+id/placeholder_fragment"
-        android:name="com.example.l4_20223209.PlaceholderFragment"
-        android:label="TELE-WEATHER" />
+        android:id="@+id/locationsFragment"
+        android:name="com.example.l4_20223209.fragments.LocationsFragment"
+        android:label="Locations"
+        tools:layout="@layout/fragment_locations">
+        <action
+            android:id="@+id/action_locations_to_forecast"
+            app:destination="@id/forecastFragment"
+            app:popUpTo="@id/locationsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forecastFragment"
+        android:name="com.example.l4_20223209.fragments.ForecastFragment"
+        android:label="Pronósticos"
+        tools:layout="@layout/fragment_forecast">
+        <argument
+            android:name="locationId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="locationName"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/futureFragment"
+        android:name="com.example.l4_20223209.fragments.FutureFragment"
+        android:label="Futuro"
+        tools:layout="@layout/fragment_future" />
 
 </navigation>
