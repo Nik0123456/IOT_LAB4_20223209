@@ -1,5 +1,11 @@
 package com.example.l4_20223209.ui.forecast;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +22,7 @@ import com.example.l4_20223209.databinding.FragmentForecastBinding;
 import com.example.l4_20223209.models.ForecastDay;
 import com.example.l4_20223209.models.WeatherResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,13 +32,28 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment implements SensorEventListener {
 
     private FragmentForecastBinding binding;
     private ForecastAdapter adapter;
     private WeatherApiService apiService;
     private ExecutorService executorService;
+    
+    // Variables para el acelerómetro
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private static final float SHAKE_THRESHOLD = 10.0f; // m/s²
+    private static final int SHAKE_TIMEOUT = 1000; // 1 segundo
+    private long lastShakeTime = 0;
+    
+    // Para funcionalidad de deshacer
+    private List<ForecastDay> lastForecastData;
+    private boolean hasData = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -53,11 +75,17 @@ public class ForecastFragment extends Fragment {
         if (args != null) {
             long locationId = args.getLong("locationId", 0);
             String locationName = args.getString("locationName", "");
+            String locationQuery = args.getString("locationQuery", "");
             
             if (locationId != 0) {
-                binding.etLocationId.setText(String.valueOf(locationId));
+                // Usar el formato id:NUMERO para la API
+                String idQuery = locationQuery.isEmpty() ? "id:" + locationId : locationQuery;
+                binding.etLocationId.setText(idQuery);
                 binding.etLocationName.setText(locationName);
                 binding.etDias.setText("14");
+                
+                // Ejecutar búsqueda automáticamente
+                searchForecast(idQuery, 14);
             }
         }
     }
@@ -74,6 +102,15 @@ public class ForecastFragment extends Fragment {
         
         // Configurar adapter
         adapter = new ForecastAdapter();
+        
+        // Inicializar lista para funcionalidad de deshacer
+        lastForecastData = new ArrayList<>();
+        
+        // Configurar acelerómetro
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
     }
 
     private void setupRecyclerView() {
@@ -123,9 +160,12 @@ public class ForecastFragment extends Fragment {
         binding.recyclerViewForecast.setVisibility(View.GONE);
         binding.cardNoResults.setVisibility(View.GONE);
 
+        // Asegurar formato correcto para ID numérico
+        String queryLocation = formatLocationQuery(locationId);
+
         // Llamada a la API para obtener pronóstico
         Call<WeatherResponse> call = apiService.getForecast(
-            "5586a0acd5a345e0b4361158250210", locationId, days);
+            "5586a0acd5a345e0b4361158250210", queryLocation, days);
 
         call.enqueue(new Callback<WeatherResponse>() {
             @Override
@@ -137,6 +177,10 @@ public class ForecastFragment extends Fragment {
                     List<ForecastDay> dayForecasts = forecast.getForecast().getForecastDays();
                     
                     if (!dayForecasts.isEmpty()) {
+                        // Guardar datos anteriores para funcionalidad de deshacer
+                        lastForecastData = new ArrayList<>(dayForecasts);
+                        hasData = true;
+                        
                         adapter.updateForecasts(dayForecasts);
                         binding.recyclerViewForecast.setVisibility(View.VISIBLE);
                         
@@ -170,6 +214,120 @@ public class ForecastFragment extends Fragment {
     private void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         showNoResults();
+    }
+
+    /**
+     * Formatea el query de ubicación para asegurar el formato correcto con la API
+     * Si es un ID numérico, lo convierte a formato "id:NUMERO"
+     */
+    private String formatLocationQuery(String locationId) {
+        if (locationId == null || locationId.trim().isEmpty()) {
+            return locationId;
+        }
+        
+        String trimmed = locationId.trim();
+        
+        // Si ya tiene el formato "id:", no lo modificamos
+        if (trimmed.toLowerCase().startsWith("id:")) {
+            return trimmed;
+        }
+        
+        // Si es solo números, agregamos el prefijo "id:"
+        if (trimmed.matches("\\d+")) {
+            return "id:" + trimmed;
+        }
+        
+        // Para cualquier otro caso (nombre de ciudad, coordenadas), devolvemos tal como está
+        return trimmed;
+    }
+
+    // Métodos del SensorEventListener para acelerómetro
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+
+            // Calcular la aceleración total (excluyendo la gravedad)
+            double acceleration = Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
+
+            // Verificar si supera el umbral y ha pasado suficiente tiempo desde la última agitación
+            long currentTime = System.currentTimeMillis();
+            if (Math.abs(acceleration) > SHAKE_THRESHOLD && 
+                (currentTime - lastShakeTime) > SHAKE_TIMEOUT) {
+                
+                lastShakeTime = currentTime;
+                
+                // Solo activar si hay datos para deshacer
+                if (hasData && !lastForecastData.isEmpty()) {
+                    showUndoDialog();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // No necesitamos hacer nada aquí
+    }
+
+    /**
+     * Muestra un diálogo de confirmación para deshacer la última acción
+     */
+    private void showUndoDialog() {
+        if (getContext() == null) return;
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("🔄 Deshacer Acción")
+                .setMessage("¿Desea limpiar los últimos pronósticos obtenidos?")
+                .setPositiveButton("Sí, limpiar", (dialog, which) -> {
+                    clearForecastData();
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    /**
+     * Limpia los datos del pronóstico actual
+     */
+    private void clearForecastData() {
+        // Limpiar solo la visualización de datos, mantener la información de ubicación
+        adapter.updateForecasts(new ArrayList<>());
+        binding.recyclerViewForecast.setVisibility(View.GONE);
+        binding.cardNoResults.setVisibility(View.VISIBLE);
+        
+        // NO limpiar los campos de ubicación para mantener el contexto de navegación
+        // Solo limpiar el campo de días si se desea
+        // binding.etDias.setText("");
+        
+        hasData = false;
+        lastForecastData.clear();
+        
+        Toast.makeText(getContext(), 
+            "📅 Pronósticos eliminados (ubicación conservada)", 
+            Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Registrar el listener del acelerómetro solo cuando el fragment está activo
+        if (sensorManager != null && accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Desregistrar el listener para ahorrar batería
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
     }
 
     @Override

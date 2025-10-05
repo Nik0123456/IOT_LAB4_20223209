@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:layout_marginBottom="40dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/primary_blue">
@@ -82,10 +83,14 @@
                     android:id="@+id/etFecha"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="date"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
                     android:maxLines="1"
                     android:textColor="@color/text_dark"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                    android:hint="Seleccionar fecha" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -155,6 +160,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="32dp"
+        android:layout_marginTop="80dp"
         android:visibility="gone"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
@@ -283,6 +289,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="32dp"
+        android:layout_marginTop="80dp"
         android:visibility="gone"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
@@ -314,17 +321,5 @@
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
-    <!-- FAB para refrescar -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabRefresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="Refrescar consulta"
-        app:backgroundTint="@color/accent_orange"
-        app:tint="@color/white"
-        app:srcCompat="@android:drawable/ic_popup_sync" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

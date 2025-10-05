@@ -9,11 +9,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.l4_20223209.R;
 import com.example.l4_20223209.api.WeatherApiService;
 import com.example.l4_20223209.databinding.FragmentLocationsBinding;
 import com.example.l4_20223209.models.Location;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -61,9 +64,7 @@ public class LocationsFragment extends Fragment {
         // Configurar adapter
         adapter = new LocationsAdapter(location -> {
             // Callback cuando se selecciona una ubicación
-            Toast.makeText(getContext(), 
-                "Ubicación seleccionada: " + location.getName(),
-                Toast.LENGTH_SHORT).show();
+            navigateToForecast(location);
         });
     }
 
@@ -134,6 +135,44 @@ public class LocationsFragment extends Fragment {
     private void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         showNoResults();
+    }
+
+    private void navigateToForecast(Location location) {
+        // Navegar al fragmento de pronósticos con los datos de la ubicación
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putLong("locationId", location.getId());
+            bundle.putString("locationName", location.getName());
+            bundle.putString("locationRegion", location.getRegion());
+            bundle.putString("locationCountry", location.getCountry());
+            // Crear query con formato id:NUMERO para la API
+            bundle.putString("locationQuery", "id:" + location.getId());
+            
+            // Usar Navigation Component para navegar
+            if (getView() != null) {
+                Navigation.findNavController(getView())
+                    .navigate(R.id.navigation_forecast, bundle);
+                    
+                // Mostrar mensaje de confirmación
+                Toast.makeText(getContext(), 
+                    "Navegando a pronósticos para " + location.getName(),
+                    Toast.LENGTH_SHORT).show();
+            }
+                
+        } catch (Exception e) {
+            // Fallback: Cambiar pestaña directamente
+            if (getActivity() != null) {
+                BottomNavigationView bottomNav = 
+                    getActivity().findViewById(R.id.nav_view);
+                if (bottomNav != null) {
+                    bottomNav.setSelectedItemId(R.id.navigation_forecast);
+                }
+            }
+            
+            Toast.makeText(getContext(), 
+                "Navegando a pronósticos para " + location.getName(),
+                Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
