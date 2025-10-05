@@ -28,6 +28,40 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * LOCATIONS FRAGMENT
+ * =============================================
+ * 
+ * MODELO DE IA UTILIZADO: Claude Sonnect 4
+ * 
+ * FUNCIONALIDAD:
+ * Esta clase es el punto de entrada principal para búsquedas de ubicaciones.
+ * Funciona como hub de navegación y búsqueda geográfica:
+ * 
+ * 1. BÚSQUEDA DE UBICACIONES: Utiliza WeatherAPI endpoint search.json para
+ *    encontrar ciudades, países y coordenadas basado en texto de entrada.
+ *    Maneja consultas parciales y autocompletado.
+ * 
+ * 2. NAVEGACIÓN INTELIGENTE: Implementa Navigation Component de Android para
+ *    transferir datos entre fragments. Al hacer click en una ubicación,
+ *    navega automáticamente a ForecastFragment con Bundle de argumentos:
+ *    - locationId: ID numérico único de la ubicación
+ *    - locationName: Nombre legible (ciudad, país)
+ *    - locationQuery: Query formateado "id:NUMERO" para API
+ * 
+ * 3. UI ADAPTATIVA: RecyclerView con LocationsAdapter personalizado que
+ *    muestra tarjetas Material Design con información geográfica.
+ *    Estados dinámicos: búsqueda, resultados, sin resultados, errores.
+ * 
+ * 4. OPTIMIZACIÓN DE RED: ExecutorService para llamadas asíncronas,
+ *    Retrofit con Gson converter para parseo automático JSON→POJO.
+ * 
+ * COMO FUNCIONA:
+ * - searchLocations(): Query a search.json con parámetro 'q'
+ * - navigateToForecast(): Crea Bundle y navega con Safe Args
+ * - RecyclerView.OnClickListener: Callback para selección de ubicación
+ * - Manejo de errores: Validación de respuestas y estados de conexión
+ */
 public class LocationsFragment extends Fragment {
 
     private FragmentLocationsBinding binding;

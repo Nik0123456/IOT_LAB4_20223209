@@ -37,6 +37,36 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * FORECAST FRAGMENT
+ * ===========================================
+ * 
+ * MODELO DE IA UTILIZADO: Claude Sonnect 4
+ * 
+ * FUNCIONALIDAD:
+ * Esta clase maneja la visualización de pronósticos del clima de 1-14 días.
+ * Integra funcionalidades avanzadas como:
+ * 
+ * 1. NAVEGACIÓN AUTOMÁTICA: Recibe parámetros desde LocationsFragment y realiza
+ *    búsquedas automáticas de pronóstico al navegar desde otra pantalla.
+ * 
+ * 2. INTEGRACIÓN DE API: Utiliza Retrofit 2 + Gson para consumir WeatherAPI
+ *    con endpoint forecast.json, manejando respuestas asíncronas.
+ * 
+ * 3. SENSOR DE ACELERÓMETRO: Implementa SensorEventListener para detectar
+ *    agitación del dispositivo (threshold: 10 m/s²) y permitir "deshacer"
+ *    la última consulta con confirmación por AlertDialog.
+ * 
+ * 4. UI RESPONSIVA: RecyclerView con adapter personalizado, ViewBinding para
+ *    manejo seguro de vistas, y indicadores de carga/error.
+ * 
+ * COMO FUNCIONA:
+ * - onViewCreated(): Configura Retrofit, RecyclerView y listeners
+ * - setupListeners(): Maneja clicks de botones y registra acelerómetro
+ * - searchForecast(): Realiza llamadas API con formato "id:NUMERO"
+ * - onSensorChanged(): Detecta agitación y muestra diálogo de confirmación
+ * - Lifecycle: Registra/desregistra sensor en onResume/onPause para optimizar batería
+ */
 public class ForecastFragment extends Fragment implements SensorEventListener {
 
     private FragmentForecastBinding binding;
@@ -295,20 +325,20 @@ public class ForecastFragment extends Fragment implements SensorEventListener {
      * Limpia los datos del pronóstico actual
      */
     private void clearForecastData() {
-        // Limpiar solo la visualización de datos, mantener la información de ubicación
         adapter.updateForecasts(new ArrayList<>());
         binding.recyclerViewForecast.setVisibility(View.GONE);
         binding.cardNoResults.setVisibility(View.VISIBLE);
         
-        // NO limpiar los campos de ubicación para mantener el contexto de navegación
-        // Solo limpiar el campo de días si se desea
-        // binding.etDias.setText("");
+        // Limpiar campos de entrada
+        binding.etLocationId.setText("");
+        binding.etLocationName.setText("");
+        binding.etDias.setText("");
         
         hasData = false;
         lastForecastData.clear();
         
         Toast.makeText(getContext(), 
-            "📅 Pronósticos eliminados (ubicación conservada)", 
+            "📅 Pronósticos eliminados", 
             Toast.LENGTH_SHORT).show();
     }
 

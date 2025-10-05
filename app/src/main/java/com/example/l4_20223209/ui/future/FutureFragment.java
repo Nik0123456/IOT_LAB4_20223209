@@ -30,6 +30,44 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * FUTURE FRAGMENT 
+ * ==========================================
+ * 
+ * MODELO DE IA UTILIZADO: Claude Sonnect 4
+ * 
+ * FUNCIONALIDAD:
+ * Esta clase maneja consultas de datos meteorológicos históricos y futuros
+ * con validación temporal avanzada y interfaz DatePicker:
+ * 
+ * 1. DATEPICKER INTELIGENTE: Implementa DatePickerDialog de Android con
+ *    validaciones personalizadas para rangos temporales específicos:
+ *    - HISTÓRICO: 1-365 días atrás desde fecha actual
+ *    - FUTURO: 14-300 días adelante desde fecha actual
+ *    Utiliza Calendar API para cálculos de diferencias de fechas.
+ * 
+ * 2. DUAL API ENDPOINTS: Consume dos endpoints diferentes de WeatherAPI:
+ *    - history.json: Para datos meteorológicos pasados
+ *    - future.json: Para pronósticos extendidos a largo plazo
+ *    Ambos requieren formato "id:NUMERO" y fecha "YYYY-MM-DD"
+ * 
+ * 3. VALIDACIÓN TEMPORAL ROBUSTA: Métodos isValidHistoricalDate() e 
+ *    isValidFutureDate() que calculan diferencias entre fechas usando
+ *    TimeUnit.DAYS.between() para prevenir consultas inválidas a la API.
+ * 
+ * 4. MODELO DE DATOS COMPLEJO: Manejo de estructura JSON anidada:
+ *    WeatherResponse → Forecast → ForecastDay → Day → DayForecast
+ *    Con validaciones null-safe en cada nivel de acceso.
+ * 
+ * 5. UI RESPONSIVA: Card-based Material Design con estados dinámicos,
+ *    progress indicators, y manejo de errores user-friendly.
+ * 
+ * COMO FUNCIONA:
+ * - showDatePicker(): Abre calendario con restricciones de fecha
+ * - searchHistoricalWeather()/searchFutureWeather(): Llamadas API específicas
+ * - displayWeatherData(): Parsea response complejo y actualiza UI
+ * - Validaciones: Múltiples capas de verificación temporal y de datos
+ */
 public class FutureFragment extends Fragment {
 
     private FragmentFutureBinding binding;
